@@ -1,5 +1,6 @@
 # Transport-Agnostic MCP Server
 
+[![Python CI](https://github.com/ByteMaster-1/mcp-project/actions/workflows/python-app.yml/badge.svg)](https://github.com/ByteMaster-1/mcp-project/actions/workflows/python-app.yml)
 A comprehensive, learning-focused implementation of the Model Context Protocol (MCP) showcasing the evolution of server transports.
 
 ## Architecture
@@ -25,9 +26,10 @@ The v2 unified transport.
 
 ## How to Run
 
-1. **Activate the virtual environment:**
+1. **Activate the virtual environment & install dependencies:**
 ```bash
 source .venv/bin/activate
+pip install -r requirements.txt
 ```
 
 2. **Run a Transport:**
@@ -36,12 +38,20 @@ Because this is a Python package, run the transports as modules from the `src/` 
 ```bash
 cd src
 
-# To run HTTP+SSE on port 8000
+# 1. To run STDIO (Standard Input/Output)
+python -m mcp_server.transports.stdio
+
+# 2. To run HTTP+SSE on port 8000
 python -m mcp_server.transports.sse
 
-# To run Streamable HTTP on port 8001
+# 3. To run Streamable HTTP on port 8001
 python -m mcp_server.transports.streamable
 ```
 
-## Future Capstone
-Designed to be plugged into a LiveKit Voice Agent, allowing real-time AI agents to interact with the underlying tools via the web transports.
+## Testing with the MCP Inspector
+To test the web transports interactively, run the official MCP Inspector from the `src/` directory:
+```bash
+cd src
+npx @modelcontextprotocol/inspector@latest
+```
+When it opens, put `http://127.0.0.1:8000/sse` as the URL for the SSE transport, or `http://127.0.0.1:8001/mcp` for Streamable.

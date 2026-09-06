@@ -1,10 +1,13 @@
 import json
 import uuid
 import asyncio
+import logging
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from sse_starlette.sse import EventSourceResponse
 from ..core import Dispatcher
+
+logging.basicConfig(level=logging.INFO)
 
 app = FastAPI()
 dispatcher = Dispatcher()
@@ -60,7 +63,7 @@ async def sse_endpoint(request: Request):
         finally:
             # Production Fix 4: Stream Closure Cleanup
             # If the client closes their browser, the generator stops, hitting this finally block.
-            print(f"Client {session_id} disconnected!")
+            logging.info(f"Client {session_id} disconnected!")
             if session_id in sessions:
                 del sessions[session_id]
                 

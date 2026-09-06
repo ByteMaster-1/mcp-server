@@ -117,3 +117,16 @@ def test_all_tools_type_crash():
         assert response["jsonrpc"] == "2.0"
         assert response["id"] == 5
         assert response["error"]["code"] == -32603
+
+def test_tools_list():
+    dispatch = Dispatcher()
+    make_request = {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "tools/list"
+    }
+    response = dispatch.handle_request(make_request)
+    assert response["jsonrpc"] == "2.0"
+    assert "tools" in response["result"]
+    tool_names = [t["name"] for t in response["result"]["tools"]]
+    assert "add" in tool_names

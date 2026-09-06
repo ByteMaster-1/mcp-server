@@ -39,9 +39,9 @@ class Dispatcher:
         # 2. Tool Discovery
         elif method == "tools/list":
             return {
-                "jsonrpc":2.0,
-                "id":request_id,
-                "result":{
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "result": {
                 "tools": [
                     {
                         "name": name,
