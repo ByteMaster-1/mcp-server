@@ -1,27 +1,37 @@
 import sys
 import json
-from ..core import Dispatcher
+import logging
+from ..core import PARSE_ERROR, Dispatcher, Session, error_response
+
+
+def send(response: dict) -> None:
+    sys.stdout.write(json.dumps(response) + "\n")
+    sys.stdout.flush()
 
 
 def main():
+    # stdout is the protocol channel, so logs must go to stderr
+    logging.basicConfig(level=logging.INFO, stream=sys.stderr)
     dispatch = Dispatcher()
+    # stdio serves exactly one client (the process that launched us), so one session
+    session = Session()
+
     for line in sys.stdin:
         line = line.strip()
         if not line:
             continue
-            
-        message = json.loads(line)
-        
-        # Check if it's a request (has an 'id' and 'method')
-        if "id" in message and "method" in message:
-            request_id = message["id"]
-            method = message["method"]
-            
-            response_dict=dispatch.handle_request(message)
-            
-            sys.stdout.write(json.dumps(response_dict)+"\n")
-            sys.stdout.flush()
 
+        try:
+            message = json.loads(line)
+        except json.JSONDecodeError:
+            # Reply and keep reading: one bad line must not take the server down
+            send(error_response(None, PARSE_ERROR, "Parse error"))
+            continue
+
+        response_dict = dispatch.handle_request(message, session)
+        # Notifications (and responses from the client) get no reply
+        if response_dict is not None:
+            send(response_dict)
 
 
 if __name__ == "__main__":
