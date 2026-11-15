@@ -174,7 +174,7 @@ class Dispatcher:
         method = message.get("method")
         params = message.get("params")
         if message.get("jsonrpc") != "2.0" or not isinstance(method, str):
-            raise RequestError(INVALID_REQUEST, "Invalid Request: needs \"jsonrpc\": \"2.0\" and a string method")
+            raise RequestError(INVALID_REQUEST, 'Invalid Request: needs "jsonrpc": "2.0" and a string method')
         if params is None:
             params = {}
         if not isinstance(params, dict):

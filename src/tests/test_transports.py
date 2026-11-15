@@ -26,6 +26,7 @@ TOOLS_LIST = {"jsonrpc": "2.0", "id": 1, "method": "tools/list"}
 
 # --- stdio ---
 
+
 def test_stdio_survives_bad_input():
     lines = [
         "not json",
@@ -49,11 +50,12 @@ def test_stdio_survives_bad_input():
     assert responses[0]["error"]["code"] == -32700  # parse error, and the server kept going
     assert responses[1]["error"]["code"] == -32600  # tools/call before initialize
     assert responses[2]["result"]["protocolVersion"] == "2025-06-18"
-    assert "tools" in responses[3]["result"]        # the notification got no reply
+    assert "tools" in responses[3]["result"]  # the notification got no reply
     assert len(responses) == 4
 
 
 # --- Streamable HTTP ---
+
 
 @pytest.fixture
 def mcp():
@@ -148,6 +150,7 @@ def test_streamable_stateless_errors_use_http_status(mcp):
 
 # --- Security (both HTTP transports) ---
 
+
 @pytest.mark.parametrize("app, path", [(streamable.app, "/mcp"), (sse.app, "/messages?session_id=x")])
 def test_other_websites_are_rejected(app, path):
     client = TestClient(app, base_url="http://127.0.0.1:8000")
@@ -172,6 +175,7 @@ def test_cors_only_allows_local_pages(app, path):
 
 
 # --- HTTP + SSE ---
+
 
 @pytest.fixture
 def sse_session():

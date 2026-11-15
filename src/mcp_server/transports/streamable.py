@@ -186,5 +186,6 @@ async def keepalive_then_result(task):
 
 if __name__ == "__main__":
     import uvicorn
+
     # We run this on a different port (8001) so you can run it side-by-side with SSE (8000)
     uvicorn.run(app, host="127.0.0.1", port=8001)

@@ -1,4 +1,5 @@
 """Checks shared by the HTTP transports, so other websites can't drive this local server."""
+
 import re
 
 from fastapi import Request

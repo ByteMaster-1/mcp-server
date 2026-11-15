@@ -55,10 +55,7 @@ async def sse_endpoint(request: Request):
         try:
             # 1. Send the endpoint event. It's a relative URL: the client resolves it
             # against the /sse URL it connected to, so any host/port works.
-            yield {
-                "event": "endpoint",
-                "data": f"/messages?session_id={session_id}"
-            }
+            yield {"event": "endpoint", "data": f"/messages?session_id={session_id}"}
 
             # 2. Keep the stream open
             while True:
@@ -66,15 +63,12 @@ async def sse_endpoint(request: Request):
                 # We use wait_for to wait up to 15 seconds for a message
                 try:
                     response_dict = await asyncio.wait_for(session.queue.get(), timeout=15.0)
-                    yield {
-                        "event": "message",
-                        "data": json.dumps(response_dict)
-                    }
+                    yield {"event": "message", "data": json.dumps(response_dict)}
                 except TimeoutError:
                     # If 15 seconds pass and the queue is empty, we yield a ping event!
                     # This keeps firewalls from killing our idle connection.
                     yield {
-                        "comment": "ping" # SSE treats this as a comment, client ignores it, network stays alive!
+                        "comment": "ping"  # SSE treats this as a comment, client ignores it, network stays alive!
                     }
 
         finally:
@@ -122,4 +116,5 @@ async def process_message(session: SseSession, message) -> None:
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="127.0.0.1", port=8000)

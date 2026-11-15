@@ -44,6 +44,7 @@ def call_tool(name, arguments, request_id=3):
 
 # --- Handshake ---
 
+
 def test_initialize():
     dispatch = Dispatcher()
     response = dispatch.handle_request(INITIALIZE, Session())
@@ -54,12 +55,15 @@ def test_initialize():
     assert response["result"]["serverInfo"]["name"] == "my-mcp-server"
 
 
-@pytest.mark.parametrize("requested, expected", [
-    ("2024-11-05", "2024-11-05"),            # supported: echo it back
-    ("2025-11-25", "2025-11-25"),
-    ("1999-01-01", HANDSHAKE_VERSIONS[-1]),  # unknown: offer our newest
-    ("2026-07-28", HANDSHAKE_VERSIONS[-1]),  # stateless-era version can't be negotiated via initialize
-])
+@pytest.mark.parametrize(
+    "requested, expected",
+    [
+        ("2024-11-05", "2024-11-05"),  # supported: echo it back
+        ("2025-11-25", "2025-11-25"),
+        ("1999-01-01", HANDSHAKE_VERSIONS[-1]),  # unknown: offer our newest
+        ("2026-07-28", HANDSHAKE_VERSIONS[-1]),  # stateless-era version can't be negotiated via initialize
+    ],
+)
 def test_initialize_negotiates_version(requested, expected):
     message = {**INITIALIZE, "params": {**INITIALIZE["params"], "protocolVersion": requested}}
     response = Dispatcher().handle_request(message, Session())
@@ -97,13 +101,10 @@ def test_initialized_notification():
 
 # testing for not found message
 
+
 def test_unknownMethod():
     dispatch, session = initialized()
-    make_request = {
-        "jsonrpc": "2.0",
-        "id": 1,
-        "method": "unknownMethod"
-    }
+    make_request = {"jsonrpc": "2.0", "id": 1, "method": "unknownMethod"}
     response = dispatch.handle_request(make_request, session)
 
     assert response["jsonrpc"] == "2.0"
@@ -114,16 +115,20 @@ def test_unknownMethod():
 
 # --- Malformed messages: always an error reply, never an exception ---
 
-@pytest.mark.parametrize("message, code", [
-    ([{"jsonrpc": "2.0", "id": 1, "method": "ping"}], -32600),           # batch
-    ({"jsonrpc": "2.0", "id": 1}, -32600),                               # no method
-    ({"id": 1, "method": "ping"}, -32600),                               # no jsonrpc
-    ({"jsonrpc": "2.0", "id": None, "method": "ping"}, -32600),          # null id
-    ({"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": None}, -32602),
-    ({"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": [1, 2]}, -32602),
-    (call_tool(["not", "a", "string"], {}), -32602),
-    (call_tool("add", "not an object"), -32602),
-])
+
+@pytest.mark.parametrize(
+    "message, code",
+    [
+        ([{"jsonrpc": "2.0", "id": 1, "method": "ping"}], -32600),  # batch
+        ({"jsonrpc": "2.0", "id": 1}, -32600),  # no method
+        ({"id": 1, "method": "ping"}, -32600),  # no jsonrpc
+        ({"jsonrpc": "2.0", "id": None, "method": "ping"}, -32600),  # null id
+        ({"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": None}, -32602),
+        ({"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": [1, 2]}, -32602),
+        (call_tool(["not", "a", "string"], {}), -32602),
+        (call_tool("add", "not an object"), -32602),
+    ],
+)
 def test_malformed_messages(message, code):
     dispatch, session = initialized()
     response = dispatch.handle_request(message, session)
@@ -143,6 +148,7 @@ def test_unexpected_bug_becomes_internal_error(monkeypatch):
 
 # --- Tools ---
 
+
 def test_unknownTool():
     dispatch, session = initialized()
     response = dispatch.handle_request(call_tool("unknownTool", {"a": 20, "b": 30}, request_id=2), session)
@@ -154,11 +160,14 @@ def test_unknownTool():
 
 
 # 1. The Pytest Way (Data-Driven Testing for valid calls)
-@pytest.mark.parametrize("tool_name, args, expected", [
-    ("add", {"a": 20, "b": 30}, "50"),
-    ("add", {"a": -5, "b": 5}, "0"),
-    ("add", {"a": 0, "b": 0}, "0"),
-])
+@pytest.mark.parametrize(
+    "tool_name, args, expected",
+    [
+        ("add", {"a": 20, "b": 30}, "50"),
+        ("add", {"a": -5, "b": 5}, "0"),
+        ("add", {"a": 0, "b": 0}, "0"),
+    ],
+)
 def test_all_tools_valid(tool_name, args, expected):
     dispatch, session = initialized()
     response = dispatch.handle_request(call_tool(tool_name, args), session)
@@ -169,13 +178,16 @@ def test_all_tools_valid(tool_name, args, expected):
 
 
 # Bad arguments are a *tool* error (isError: true), so the model can read it and retry
-@pytest.mark.parametrize("args", [
-    {"a": "foo", "b": "bar"},  # used to return "foobar"
-    {"a": "5", "b": 1},        # strings are not integers
-    {"a": 1.5, "b": 1},
-    {"a": True, "b": 1},
-    {"a": 5},                  # b is required; used to silently default to 0
-])
+@pytest.mark.parametrize(
+    "args",
+    [
+        {"a": "foo", "b": "bar"},  # used to return "foobar"
+        {"a": "5", "b": 1},  # strings are not integers
+        {"a": 1.5, "b": 1},
+        {"a": True, "b": 1},
+        {"a": 5},  # b is required; used to silently default to 0
+    ],
+)
 def test_add_rejects_invalid_arguments(args):
     dispatch, session = initialized()
     response = dispatch.handle_request(call_tool("add", args), session)
@@ -216,6 +228,7 @@ def test_tools_list():
 
 
 # --- Stateless era (2026-07-28) ---
+
 
 def stateless(method, params=None, request_id=1):
     return {
@@ -258,9 +271,7 @@ def test_stateless_envelope_needs_capabilities():
 
 
 def test_stateless_session_rejects_requests_without_envelope():
-    response = Dispatcher().handle_request(
-        {"jsonrpc": "2.0", "id": 1, "method": "tools/list"}, Session(era=STATELESS)
-    )
+    response = Dispatcher().handle_request({"jsonrpc": "2.0", "id": 1, "method": "tools/list"}, Session(era=STATELESS))
     assert response["error"]["code"] == -32602
 
 
