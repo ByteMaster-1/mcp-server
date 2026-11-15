@@ -1,6 +1,7 @@
 # Transport-Agnostic MCP Server
 
-[![Python CI](https://github.com/ByteMaster-1/mcp-server/actions/workflows/python-app.yml/badge.svg)](https://github.com/ByteMaster-1/mcp-server/actions/workflows/python-app.yml)
+[![Unit Tests](https://github.com/ByteMaster-1/mcp-server/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/ByteMaster-1/mcp-server/actions/workflows/unit-tests.yml)
+[![Ruff](https://github.com/ByteMaster-1/mcp-server/actions/workflows/ruff.yml/badge.svg)](https://github.com/ByteMaster-1/mcp-server/actions/workflows/ruff.yml)
 A comprehensive, learning-focused implementation of the Model Context Protocol (MCP) showcasing the evolution of server transports.
 
 ## Architecture
@@ -41,7 +42,8 @@ Both HTTP transports only accept requests whose `Host` is local and whose `Origi
 1. **Activate the virtual environment & install dependencies:**
 ```bash
 source .venv/bin/activate
-pip install -r requirements.txt
+pip install -r requirements.txt       # just to run the server
+pip install -r requirements-dev.txt   # to also run the tests and ruff
 ```
 
 2. **Run a Transport:**
@@ -69,7 +71,13 @@ npx @modelcontextprotocol/inspector@latest
 When it opens, put `http://127.0.0.1:8000/sse` as the URL for the SSE transport, or `http://127.0.0.1:8001/mcp` for Streamable.
 
 ## Running the Tests
-From the repository root:
+From the repository root (`pyproject.toml` puts `src` on the import path):
 ```bash
-PYTHONPATH=src pytest
+pytest
+```
+
+Lint and format checks, the same ones CI runs:
+```bash
+ruff check src
+ruff format --check src
 ```

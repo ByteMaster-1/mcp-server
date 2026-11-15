@@ -1,0 +1,6 @@
+# What you need to develop and test the server
+-r requirements.txt  # include everything the server needs to run
+
+pytest>=7.0.0
+httpx2>=2.0.0  # used by Starlette's TestClient in the transport tests
+ruff==0.17.5   # pinned: new ruff versions add rules and change formatting

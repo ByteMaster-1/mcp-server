@@ -1,6 +1,5 @@
+# What the server needs to run
 fastapi>=0.100.0
 uvicorn>=0.22.0
 sse-starlette>=1.6.1
 pydantic>=2.0.0
-pytest>=7.0.0
-httpx2>=2.0.0  # used by Starlette's TestClient in the transport tests
