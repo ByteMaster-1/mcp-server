@@ -1,4 +1,5 @@
 import pytest
+
 from mcp_server.core import (
     CLIENT_CAPABILITIES_KEY,
     HANDSHAKE_VERSIONS,

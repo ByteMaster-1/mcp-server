@@ -1,10 +1,12 @@
-import json
-import uuid
 import asyncio
+import json
 import logging
+import uuid
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response, StreamingResponse
+
 from ..core import (
     HANDSHAKE_VERSIONS,
     INVALID_PARAMS,
@@ -121,9 +123,12 @@ async def handle_handshake(request: Request, message):
 
 async def handle_stateless(request: Request, message):
     """2026-07-28: every POST stands on its own. No initialize, no session."""
-    if is_stateless_request(message) and "id" in message:
-        if (mismatch := check_routing_headers(request, message)) is not None:
-            return JSONResponse(error_response(message["id"], HEADER_MISMATCH, mismatch), status_code=400)
+    if (
+        is_stateless_request(message)
+        and "id" in message
+        and (mismatch := check_routing_headers(request, message)) is not None
+    ):
+        return JSONResponse(error_response(message["id"], HEADER_MISMATCH, mismatch), status_code=400)
     return await run_dispatcher(message, Session(era=STATELESS), status_from_error=True)
 
 
@@ -146,7 +151,7 @@ async def run_dispatcher(message, session: Session, status_from_error: bool = Fa
     try:
         # 2. Most requests finish quickly: answer with a normal JSON response
         response_dict = await asyncio.wait_for(asyncio.shield(task), timeout=KEEPALIVE_SECONDS)
-    except asyncio.TimeoutError:
+    except TimeoutError:
         # 3. Still running after 15 seconds: switch to streaming to keep the connection alive
         return StreamingResponse(keepalive_then_result(task), media_type="application/json")
     return await reply(response_dict, status_from_error)
@@ -169,7 +174,7 @@ async def keepalive_then_result(task):
         try:
             # Wait up to 15 seconds for the tool to finish
             await asyncio.wait_for(asyncio.shield(task), timeout=KEEPALIVE_SECONDS)
-        except asyncio.TimeoutError:
+        except TimeoutError:
             # 15 seconds passed and the tool is STILL running!
             # Yield an empty space to keep the firewall connection alive.
             # (Whitespace before JSON is still valid JSON.)

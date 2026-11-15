@@ -1,3 +1,20 @@
 [tool.pytest.ini_options]
 minversion = "6.0"
 pythonpath = ["src"]
+
+# Settings shared by the linter (ruff check) and the formatter (ruff format)
+[tool.ruff]
+target-version = "py311"  # oldest Python we support; ruff won't suggest newer-only syntax
+line-length = 120
+
+# Linter only: which rule families to check
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors (style)
+    "W",    # pycodestyle warnings (whitespace)
+    "F",    # pyflakes (real bugs: unused/undefined names)
+    "I",    # isort (import order)
+    "UP",   # pyupgrade (use modern syntax for target-version)
+    "B",    # flake8-bugbear (likely bugs and design problems)
+    "SIM",  # flake8-simplify (simpler equivalent code)
+]

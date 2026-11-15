@@ -1,11 +1,13 @@
-import json
-import uuid
 import asyncio
+import json
 import logging
+import uuid
+
 from fastapi import BackgroundTasks, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 from sse_starlette.sse import EventSourceResponse
+
 from ..core import PARSE_ERROR, Dispatcher, Session, error_response
 from .security import LOCAL_ORIGIN_REGEX, check_host_and_origin
 
@@ -68,7 +70,7 @@ async def sse_endpoint(request: Request):
                         "event": "message",
                         "data": json.dumps(response_dict)
                     }
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     # If 15 seconds pass and the queue is empty, we yield a ping event!
                     # This keeps firewalls from killing our idle connection.
                     yield {
@@ -79,8 +81,7 @@ async def sse_endpoint(request: Request):
             # Production Fix 4: Stream Closure Cleanup
             # If the client closes their browser, the generator stops, hitting this finally block.
             logger.info(f"Client {session_id} disconnected!")
-            if session_id in sessions:
-                del sessions[session_id]
+            sessions.pop(session_id, None)
 
     return EventSourceResponse(event_generator())
 

@@ -1,6 +1,7 @@
-import sys
 import json
 import logging
+import sys
+
 from ..core import PARSE_ERROR, Dispatcher, Session, error_response
 
 

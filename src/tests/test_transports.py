@@ -41,6 +41,7 @@ def test_stdio_survives_bad_input():
         text=True,
         cwd=SRC,
         timeout=10,
+        check=False,  # we assert on returncode ourselves below
     )
     responses = [json.loads(line) for line in result.stdout.splitlines()]
 

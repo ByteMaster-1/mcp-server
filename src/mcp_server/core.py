@@ -193,7 +193,8 @@ class Dispatcher:
         if is_stateless_request(message):
             raise RequestError(
                 INVALID_REQUEST,
-                "This session uses the initialize handshake; requests with the 2026-07-28 _meta envelope aren't accepted",
+                "This session uses the initialize handshake; "
+                "requests with the 2026-07-28 _meta envelope aren't accepted",
             )
         if method not in HANDSHAKE_METHODS:
             raise RequestError(METHOD_NOT_FOUND, "Method not found", method)
